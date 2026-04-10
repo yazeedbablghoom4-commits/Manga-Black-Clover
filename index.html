@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0"/>
+<title>Yazeed Sir | بلاك كلوفر</title>
+
+<!-- فحص الثيم قبل أي شيء لمنع وميض الألوان -->
+<script>
+(function() {
+  try {
+    if (localStorage.getItem('theme') === 'light') {
+      document.documentElement.classList.add('light-mode');
+    }
+  } catch(e) {}
+})();
+</script>
+
+<style>
+/* ==========================================
+   متغيرات الثيم
+   ========================================== */
+:root {
+  --bg-color: #0f0f0f;
+  --panel-bg: #1a1a1a;
+  --panel-bg-2: #222222;
+  --text-main: #ffffff;
+  --text-muted: #aaaaaa;
+  --accent: #e53935;
+  --accent-hover: #ff5252;
+  --accent-rgb: 229, 57, 53;
+  --border-color: #2a2a2a;
+  --font-family: 'Tajawal', 'Segoe UI', Tahoma, sans-serif;
+  --transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+html.light-mode {
+  --bg-color: #f0f2f5;
+  --panel-bg: #ffffff;
+  --panel-bg-2: #f5f5f5;
+  --text-main: #1a1a1a;
+  --text-muted: #65676b;
+  --accent: #d32f2f;
+  --accent-rgb: 211, 47, 47;
+  --border-color: #e4e6eb;
+}
+
+/* ==========================================
+   اللودر
+   ========================================== */
+#loader-wrapper {
+  position: fixed;
+  inset: 0;
+  background: var(--bg-color);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999999;
+  transition: opacity 0.5s ease, visibility 0.5s ease;
+}
+
+#loader-wrapper.loader-hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.loader-img {
+  width: 130px;
+  height: 130px;
+  object-fit: contain;
+  animation: pulse-glow 1.6s infinite ease-in-out;
+}
+
+html:not(.light-mode) .loader-img {
+  width: 250px;
+  height: 250px;
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    transform: scale(0.9);
+    filter: drop-shadow(0 0 6px rgba(var(--accent-rgb), 0.5));
+  }
+  50% {
+    transform: scale(1.08);
+    filter: drop-shadow(0 0 22px rgba(var(--accent-rgb), 0.9));
+  }
+}
+
+/* ==========================================
+   الأنيميشن العامة
+   ========================================== */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes rotateSpin {
+  from { transform: rotate(-180deg) scale(0.7); opacity: 0; }
+  to   { transform: rotate(0deg) scale(1); opacity: 1; }
+}
+
+/* ==========================================
+   أنيميشن دخول الصفحة الرئيسية
+   ========================================== */
+.hp-hidden {
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+.hp-animate {
+  animation: fadeInUp 0.55s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+/* ==========================================
+   الجسم والعناصر الأساسية
+   ========================================== */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-main);
+  font-family: var(--font-family);
+  direction: rtl;
+  transition: background-color 0.35s ease, color 0.35s ease;
+  margin: 0;
+  overflow-x: hidden;
+  line-height: 1.7;
+}
+
+/* ==========================================
+   الهيدر
+   ========================================== */
+header {
+  background-color: var(--panel-bg);
+  padding: 10px 5%;
+  border-bottom: 2px solid var(--accent);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  z-index: 9999;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+  animation: fadeInDown 0.6s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+header.hp-hidden {
+  opacity: 0;
+  transform: translateY(-30px);
+  animation: none;
+}
+
+header.hp-animate-header {
+  animation: fadeInDown 0.6s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+.logo {
+  font-size: 22px;
+  font-weight: 900;
+  text-transform: uppercase;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  letter-spacing: 1px;
+}
+.logo .yazeed { color: var(--text-main); }
+.logo .sir    { color: var(--accent); }
+
+.nav-icons {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.icon-btn {
+  width: 40px;
+  height: 40px;
+  background: var(--bg-color);
+  color: var(--text-main);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  border: 1px solid var(--border-color);
+  font-size: 15px;
+  font-weight: bold;
+  transition: var(--transition);
+  flex-shrink: 0;
+}
+.icon-btn:hover {
+  transform: translateY(-3px);
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #fff;
+}
+
+/* ==========================================
+   الحاوية الرئيسية
+   ========================================== */
+.container {
+  max-width: 1000px;
+  margin: 40px auto;
+  padding: 0 20px;
+}
+
+/* ==========================================
+   بانيل المانغا (الصفحة الرئيسية)
+   ========================================== */
+.manga-panel {
+  background: var(--panel-bg);
+  border-radius: 20px;
+  padding: 30px;
+  display: flex;
+  gap: 30px;
+  border: 1px solid var(--border-color);
+}
+
+.manga-cover img {
+  width: 220px;
+  height: 315px;
+  border-radius: 12px;
+  object-fit: cover;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  display: block;
+}
+
+.manga-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.manga-info h1 {
+  font-size: 28px;
+  margin: 0 0 12px 0;
+  line-height: 1.3;
+}
+
+.story-box {
+  background: rgba(var(--accent-rgb), 0.05);
+  padding: 18px;
+  border-inline-end: 4px solid var(--accent);
+  border-radius: 8px;
+  margin: 15px 0;
+}
+
+.story-box p {
+  margin: 8px 0 0 0;
+  color: var(--text-muted);
+  font-size: 15px;
+  line-height: 1.8;
+}
+
+.manga-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  list-style: none;
+  padding: 0;
+  margin: 15px 0 0 0;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.manga-meta li b {
+  color: var(--text-main);
+}
+
+/* ==========================================
+   زر ملاحظة المترجم
+   ========================================== */
+.note-toggle-btn {
+  background: var(--panel-bg-2);
+  color: var(--text-main);
+  border: 1px solid var(--accent);
+  padding: 10px 18px;
+  border-radius: 10px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-family);
+  font-size: 14px;
+  font-weight: bold;
+  transition: var(--transition);
+  margin: 15px 0 0 0;
+}
+.note-toggle-btn:hover {
+  background: var(--accent);
+  color: #fff;
+}
+.note-toggle-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* ==========================================
+   صندوق ملاحظة المترجم
+   ========================================== */
+.translator-note {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition: grid-template-rows 0.45s ease, opacity 0.45s ease, margin 0.45s ease;
+  margin-top: 0;
+}
+
+.translator-note.show {
+  grid-template-rows: 1fr;
+  opacity: 1;
+  margin-top: 15px;
+}
+
+.translator-note-inner {
+  overflow: hidden;
+}
+
+.translator-note-content {
+  background: rgba(var(--accent-rgb), 0.05);
+  border: 1px dashed var(--accent);
+  border-radius: 12px;
+  padding: 18px 20px;
+  font-size: 15px;
+  line-height: 1.9;
+  color: var(--text-muted);
+}
+
+/* ==========================================
+   قائمة الفصول
+   ========================================== */
+.chapters-header {
+  font-size: 20px;
+  font-weight: 900;
+  border-inline-end: 4px solid var(--accent);
+  padding-inline-end: 15px;
+  margin: 40px 0 25px 0;
+}
+
+#chapters-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.chapters-empty {
+  text-align: center;
+  padding: 40px;
+  color: var(--text-muted);
+  background: var(--panel-bg);
+  border-radius: 12px;
+  border: 1px dashed var(--border-color);
+}
+
+.chapter-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--panel-bg);
+  padding: 16px 22px;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  text-decoration: none;
+  transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+.chapter-item::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(var(--accent-rgb), 0.22), transparent);
+  background-size: 200% auto;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.chapter-item:hover {
+  transform: translateX(-8px);
+  border-color: var(--accent);
+  background: rgba(var(--accent-rgb), 0.12);
+  box-shadow: 0 4px 20px rgba(var(--accent-rgb), 0.45);
+}
+.chapter-item:hover::after {
+  opacity: 1;
+  animation: shimmer 1.2s linear infinite;
+}
+.chapter-item:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.chapter-title {
+  font-weight: bold;
+  font-size: 15px;
+}
+
+.chapter-arrow {
+  color: var(--accent);
+  font-size: 14px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ==========================================
+   أنيميشن شيمر
+   ========================================== */
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+/* ==========================================
+   زر تبديل الثيم
+   ========================================== */
+#theme-switch {
+  position: fixed;
+  bottom: 25px;
+  inset-inline-start: 25px;
+  width: 52px;
+  height: 52px;
+  background: var(--accent);
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 10000;
+  box-shadow: 0 4px 16px rgba(var(--accent-rgb), 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+  color: #ffffff;
+}
+#theme-switch:hover {
+  background: var(--accent-hover);
+  transform: scale(1.1);
+}
+
+html.light-mode #theme-switch {
+  color: #000000;
+}
+#theme-switch:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+#theme-switch svg {
+  width: 26px;
+  height: 26px;
+  fill: currentColor;
+  display: block;
+}
+#theme-switch.spinning svg {
+  animation: rotateSpin 0.45s ease both;
+}
+
+/* ==========================================
+   الريسبونسف
+   ========================================== */
+@media (max-width: 768px) {
+  .manga-panel {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 22px;
+    gap: 20px;
+  }
+  .manga-cover img {
+    width: 170px;
+    height: auto;
+  }
+  .story-box {
+    border-inline-end: none;
+    border-top: 4px solid var(--accent);
+    text-align: right;
+  }
+  .manga-meta {
+    justify-content: center;
+  }
+  .chapter-item:hover {
+    transform: none;
+  }
+  #theme-switch {
+    bottom: 18px;
+    width: 46px;
+    height: 46px;
+  }
+}
+
+@media (max-width: 480px) {
+  .container { padding: 0 14px; }
+  .manga-info h1 { font-size: 22px; }
+  header { padding: 10px 4%; }
+}
+</style>
+</head>
+
+<body>
+
+<!-- اللودر -->
+<div id="loader-wrapper" role="status" aria-label="جاري التحميل">
+  <img id="loader-img" class="loader-img" src="" alt="" width="130" height="130"/>
+</div>
+
+<!-- الهيدر -->
+<header>
+  <a class="logo" href="/">
+    <span class="yazeed">YAZEED</span>
+    <span class="sir">SIR</span>
+  </a>
+  <div class="nav-icons">
+    <a class="icon-btn" href="https://x.com/DB_BUGGY01" target="_blank" rel="noopener noreferrer" title="تابعني على X" aria-label="تابعني على X">𝕏</a>
+  </div>
+</header>
+
+<!-- زر تبديل الثيم -->
+<button id="theme-switch" aria-label="تبديل الوضع الليلي والنهاري"></button>
+
+<!-- المحتوى الرئيسي -->
+<main class="container">
+
+  <!-- بانيل المانغا -->
+  <article class="manga-panel homepage-enter">
+    <div class="manga-cover">
+      <img id="manga-cover-img" src="https://lh3.googleusercontent.com/d/1_J5cozEdhc-EKJgxQMYPgc6YwtGRKWYr" alt="غلاف بلاك كلوفر" width="220" height="315" loading="eager"/>
+    </div>
+    <div class="manga-info">
+      <h1>بلاك كلوفر | Black Clover</h1>
+      <div class="story-box">
+        <strong>قصة العمل:</strong>
+        <p>في عالم حيث السحر هو كل شيء، يولد الفتى "أستا" فاقداً لأي قوى سحرية، بينما يولد صديقه وغريمه "يونو" بمهارات سحرية استثنائية. رغم هذا العائق، يطمح أستا للوصول إلى القمة ليصبح "إمبراطور السحر" وإثبات أن العمل الجاد والإصرار يمكنهما التغلب على الموهبة الفطرية.</p>
+      </div>
+
+      <button class="note-toggle-btn" id="noteToggleBtn" aria-controls="noteBox" aria-expanded="false">
+        <svg width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" fill="currentColor"/>
+        </svg>
+        كلمة المترجم
+      </button>
+
+      <div class="translator-note" id="noteBox" aria-hidden="true">
+        <div class="translator-note-inner">
+          <div class="translator-note-content">
+            أهلاً بكم 👋<br/><br/>
+            بدأتُ ترجمة هذه المانغا تقديراً لقصتها، ورغبةً في تقديم تجربة قراءة عربية تليق بالعمل الأصلي.<br/>
+            حرصت على أن تكون الترجمة دقيقة ومحافظة على نصها وسياقها.<br/><br/>
+            أتمنى لكم قراءة ممتعة ❤️
+          </div>
+        </div>
+      </div>
+
+      <ul class="manga-meta">
+        <li>المؤلف: <b>يوكي تاباتا</b></li>
+        <li>الحالة: <b>مستمرة</b></li>
+        <li>التصنيف: <b>شونين، سحر</b></li>
+      </ul>
+    </div>
+  </article>
+
+  <!-- قائمة الفصول -->
+  <section aria-label="قائمة الفصول" class="homepage-enter">
+    <h2 class="chapters-header">قائمة الفصول</h2>
+    <div id="chapters-list">
+      <!-- يتم تحميل الفصول من chapters.json -->
+      <div class="chapters-empty">جاري تحميل الفصول...</div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+// ==========================================
+// صور الغلاف حسب الثيم
+// ==========================================
+const COVER_IMGS = {
+  dark:  'https://lh3.googleusercontent.com/d/1_J5cozEdhc-EKJgxQMYPgc6YwtGRKWYr',
+  light: 'https://lh3.googleusercontent.com/d/1KGDaNRAsz6RV6gUVgRB-KUjOQgPAeJoY'
+};
+
+function updateCoverImg(isLight) {
+  var cover = document.getElementById('manga-cover-img');
+  if (cover) cover.src = isLight ? COVER_IMGS.light : COVER_IMGS.dark;
+}
+
+// ==========================================
+// صور اللودر
+// ==========================================
+const LOADER_IMGS = {
+  dark:  'https://logos-world.net/wp-content/uploads/2023/10/Black-Bulls-Logo.png',
+  light: 'https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/e8ddc4da-23dd-4502-b65b-378c9cfe5efa/dfh9koj-efa07e64-9d87-4efd-ae56-0a92b3ce0fec.png/v1/fill/w_894,h_894/golden_dawn_insignia_by_jormxdos_dfh9koj-pre.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9MTI4MCIsInBhdGgiOiIvZi9lOGRkYzRkYS0yM2RkLTQ1MDItYjY1Yi0zNzhjOWNmZTVlZmEvZGZoOWtvai1lZmEwN2U2NC05ZDg3LTRlZmQtYWU1Ni0wYTkyYjNjZTBmZWMucG5nIiwid2lkdGgiOiI8PTEyODAifV1dLCJhdWQiOlsidXJuOnNlcnZpY2U6aW1hZ2Uub3BlcmF0aW9ucyJdfQ.ziqY1H2bw4JCMYJ4cWDlxB7kv_7VOu7y2aRd-CkD8Fc'
+};
+
+// ==========================================
+// إعداد اللودر وصورته
+// ==========================================
+(function initLoader() {
+  function setLoaderImg() {
+    const img = document.getElementById('loader-img');
+    if (!img) return;
+    const isLight = document.documentElement.classList.contains('light-mode');
+    img.src = isLight ? LOADER_IMGS.light : LOADER_IMGS.dark;
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setLoaderImg);
+  } else {
+    setLoaderImg();
+  }
+})();
+
+// إخفاء اللودر
+(function setupLoader() {
+  function hideLoader(delay) {
+    setTimeout(function() {
+      var l = document.getElementById('loader-wrapper');
+      if (l) l.classList.add('loader-hidden');
+    }, delay);
+  }
+  document.addEventListener('DOMContentLoaded', function() {
+    hideLoader(800);
+  });
+})();
+
+// ==========================================
+// أيقونات الثيم
+// ==========================================
+const ICON_SUN = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="12" cy="12" r="5" fill="currentColor"/><g stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="1"  x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></g></svg>';
+const ICON_MOON = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" fill="currentColor"/></svg>';
+
+// ==========================================
+// نظام الثيم
+// ==========================================
+const htmlEl   = document.documentElement;
+const themeBtn = document.getElementById('theme-switch');
+
+function getIsLight() {
+  return htmlEl.classList.contains('light-mode');
+}
+
+function applyThemeUI(isLight) {
+  if (!themeBtn) return;
+  themeBtn.innerHTML = isLight ? ICON_SUN : ICON_MOON;
+  const img = document.getElementById('loader-img');
+  if (img) img.src = isLight ? LOADER_IMGS.light : LOADER_IMGS.dark;
+  updateCoverImg(isLight);
+}
+
+function triggerSpinAnimation() {
+  if (!themeBtn) return;
+  themeBtn.classList.remove('spinning');
+  void themeBtn.offsetWidth;
+  themeBtn.classList.add('spinning');
+}
+
+applyThemeUI(getIsLight());
+
+if (themeBtn) {
+  themeBtn.addEventListener('click', function() {
+    htmlEl.classList.toggle('light-mode');
+    const isLight = getIsLight();
+    try { localStorage.setItem('theme', isLight ? 'light' : 'dark'); } catch(e) {}
+    triggerSpinAnimation();
+    applyThemeUI(isLight);
+  });
+}
+
+// ==========================================
+// ملاحظة المترجم
+// ==========================================
+const noteBtn = document.getElementById('noteToggleBtn');
+const noteBox = document.getElementById('noteBox');
+
+if (noteBtn && noteBox) {
+  noteBtn.addEventListener('click', function() {
+    const isOpen = noteBox.classList.toggle('show');
+    noteBtn.setAttribute('aria-expanded', String(isOpen));
+    noteBox.setAttribute('aria-hidden', String(!isOpen));
+  });
+}
+
+// ==========================================
+// تحميل الفصول من chapters.json
+// ==========================================
+document.addEventListener('DOMContentLoaded', function() {
+  var list = document.getElementById('chapters-list');
+  if (!list) return;
+
+  fetch('/chapters.json')
+    .then(function(r) {
+      if (!r.ok) throw new Error('chapters.json not found');
+      return r.json();
+    })
+    .then(function(chapters) {
+      if (!chapters || !chapters.length) {
+        list.innerHTML = '<div class="chapters-empty">لا توجد فصول بعد، تابعنا قريباً!</div>';
+        return;
+      }
+
+      // ترتيب تصاعدي
+      function getNum(t) {
+        var m = (t || '').match(/(\d+(?:\.\d+)?)/);
+        return m ? parseFloat(m[1]) : 0;
+      }
+      chapters.sort(function(a, b) { return getNum(a.title) - getNum(b.title); });
+
+      list.innerHTML = '';
+      var fragment = document.createDocumentFragment();
+      chapters.forEach(function(ch) {
+        var a = document.createElement('a');
+        a.className = 'chapter-item hp-hidden';
+        a.href = ch.url;
+        a.innerHTML = '<span class="chapter-title">' + ch.title + '</span><span class="chapter-arrow" aria-hidden="true">اقرأ الآن ←</span>';
+        fragment.appendChild(a);
+      });
+      list.appendChild(fragment);
+
+      // أنيميشن الفصول عند التمرير
+      var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) {
+            entry.target.classList.remove('hp-hidden');
+            entry.target.classList.add('hp-animate');
+          } else {
+            entry.target.classList.remove('hp-animate');
+            entry.target.classList.add('hp-hidden');
+          }
+        });
+      }, { threshold: 0.15 });
+
+      list.querySelectorAll('.chapter-item').forEach(function(el) {
+        observer.observe(el);
+      });
+    })
+    .catch(function() {
+      list.innerHTML = '<div class="chapters-empty">لا توجد فصول بعد، تابعنا قريباً!</div>';
+    });
+});
+
+// ==========================================
+// أنيميشن دخول الصفحة الرئيسية (staggered بعد اللودر)
+// ==========================================
+(function initHomepageAnimation() {
+  var selectors = [
+    '.manga-cover',
+    '.manga-info h1',
+    '.story-box',
+    '.note-toggle-btn',
+    '.manga-meta',
+    '.chapters-header'
+  ];
+
+  var header = document.querySelector('header');
+
+  document.addEventListener('DOMContentLoaded', function() {
+    if (header) header.classList.add('hp-hidden');
+
+    selectors.forEach(function(sel) {
+      var el = document.querySelector(sel);
+      if (el) el.classList.add('hp-hidden');
+    });
+
+    var STEP = 120;
+    var START = 950;
+
+    setTimeout(function() {
+      if (header) {
+        header.classList.remove('hp-hidden');
+        header.classList.add('hp-animate-header');
+      }
+    }, START);
+
+    selectors.forEach(function(sel, i) {
+      setTimeout(function() {
+        var el = document.querySelector(sel);
+        if (!el) return;
+        el.classList.remove('hp-hidden');
+        el.classList.add('hp-animate');
+      }, START + STEP + i * STEP);
+    });
+  });
+})();
+</script>
+
+</body>
+                               </html>
